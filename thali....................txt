@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indian Restaurant Billing System</title>
+  <style>
+    *{box-sizing:border-box;font-family:'Poppins',sans-serif;}
+    body{margin:0;background:#1a0f00;color:#fff;}
+    #intro, #dashboard { display: none; }
+
+    header{background:linear-gradient(90deg,#b36b00,#ffcc33);color:#fff;text-shadow:1px 1px 3px #000;padding:15px;text-align:center;font-size:28px;font-weight:bold;}
+    nav{display:flex;justify-content:center;background:#330000;border-bottom:3px solid #ff9933;}
+    nav button{background:none;border:none;color:#ffcc66;padding:14px 22px;cursor:pointer;font-weight:bold;font-size:16px;transition:0.3s;}
+    nav button:hover{background:#ff9933;color:#000;border-radius:5px;}
+    section{padding:20px;display:none;min-height:80vh;}
+    #intro{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;background:radial-gradient(circle at center,#331a00,#000);color:#ffcc33;text-align:center;}
+    #intro h1{font-size:45px;margin-bottom:20px;text-shadow:0 0 20px #ffcc33;}
+    #intro button{padding:15px 35px;font-size:18px;background:#ffcc33;color:#000;border:none;border-radius:8px;cursor:pointer;font-weight:bold;transition:0.3s;}
+    #intro button:hover{background:#fff099;transform:scale(1.05);}
+    table{width:100%;border-collapse:collapse;margin-top:15px;background:#fff;color:#000;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(255,204,51,0.2);}
+    th,td{padding:10px;border:1px solid #ddd;text-align:left;}
+    th{background:#ffcc33;color:#000;}
+    .btn{background:#ffcc33;color:#000;border:none;padding:8px 12px;border-radius:5px;cursor:pointer;font-weight:bold;transition:0.3s;}
+    .btn:hover{background:#fff099;}
+    input,select,textarea{padding:6px;margin:5px 0;width:100%;border-radius:4px;border:1px solid #555;}
+    h2{color:#ffcc33;border-bottom:2px solid #ffcc33;padding-bottom:5px;}
+    h3{color:#ffcc66;}
+    .flex{display:flex;align-items:center;justify-content:space-between;}
+    .total-box{font-size:20px;font-weight:bold;color:#ffcc33;margin-top:10px;}
+    .search-bar{width:50%;padding:6px;}
+    .hidden{display:none;}
+  </style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div id="loginPage">
+  <h1 style="text-align:center;color:#ffcc33;margin-top:50px;">🔐 Restaurant Login</h1>
+  <div style="max-width:400px;margin:30px auto;background:#330000;padding:20px;border-radius:10px;">
+    <label>Username:</label>
+    <input type="text" id="username" placeholder="Enter username">
+    <label>Password:</label>
+    <input type="password" id="password" placeholder="Enter password">
+    <button class="btn" onclick="login()">Login</button>
+    <p id="loginError" style="color:red;text-align:center;"></p>
+  </div>
+</div>
+
+<!-- Intro Page -->
+<div id="intro">
+  <h1>🍛 Namaste! Welcome to Taste of India 🍛</h1>
+  <button onclick="startApp()">Enter Restaurant</button>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="hidden">
+  <header id="siteTitle">Taste of India Restaurant</header>
+  <nav>
+    <button onclick="showPage('homePage')">🏠 Home</button>
+    <button onclick="showPage('menuPage')">🍽 Menu</button>
+    <button onclick="showPage('billingPage')">🧾 Billing</button>
+    <button onclick="showPage('historyPage')">📜 History</button>
+    <button onclick="showPage('settingsPage')">⚙ Settings</button>
+  </nav>
+
+  <!-- Home Page -->
+  <section id="homePage">
+    <h2>Welcome Message</h2>
+    <textarea id="welcomeMsg" rows="4">Namaste! Welcome to Taste of India. Enjoy authentic Indian flavors!</textarea>
+    <button class="btn" onclick="saveHome()">Save Home Info</button>
+  </section>
+
+  <!-- Menu Page -->
+  <section id="menuPage">
+    <div class="flex">
+      <input type="text" id="searchMenu" class="search-bar" placeholder="Search for a dish..." oninput="renderMenu()">
+    </div>
+    <table id="menuTable">
+      <thead><tr><th>Dish</th><th>Price (₹)</th><th>Qty</th><th>Add</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- Billing Page -->
+  <section id="billingPage">
+    <h2>Current Bill</h2>
+    <table id="billTable">
+      <thead><tr><th>Dish</th><th>Qty</th><th>Price</th><th>Total</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="total-box">Total: ₹<span id="billTotal">0.00</span></div>
+    <label>Payment Type:</label>
+    <select id="paymentType">
+      <option value="Cash">Cash</option>
+      <option value="Online">Online</option>
+    </select>
+    <button class="btn" onclick="saveBill()">Save Bill</button>
+    <button class="btn" onclick="window.print()">🖨 Print / Export PDF</button>
+  </section>
+
+  <!-- History Page -->
+  <section id="historyPage">
+    <h2>Order History</h2>
+    <h3>💰 Cash Orders</h3>
+    <table id="cashHistory">
+      <thead><tr><th>Date</th><th>Dishes</th><th>Total (₹)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="color:#ffcc33;">Total Cash Orders: <span id="cashCount">0</span> | Total Amount: ₹<span id="cashAmount">0.00</span></div>
+
+    <h3>💳 Online Orders</h3>
+    <table id="onlineHistory">
+      <thead><tr><th>Date</th><th>Dishes</th><th>Total (₹)</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div style="color:#ffcc33;">Total Online Orders: <span id="onlineCount">0</span> | Total Amount: ₹<span id="onlineAmount">0.00</span></div>
+
+    <button class="btn" onclick="window.print()">🖨 Print / Export PDF</button>
+  </section>
+
+  <!-- Settings Page -->
+  <section id="settingsPage">
+    <h2>Menu Settings</h2>
+    <table id="settingsTable">
+      <thead><tr><th>#</th><th>Dish</th><th>Price (₹)</th><th>Action</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn" onclick="saveSettings()">Save Changes</button>
+  </section>
+</div>
+
+<script>
+function login() {
+  const user = document.getElementById('username').value.trim();
+  const pass = document.getElementById('password').value.trim();
+  const error = document.getElementById('loginError');
+  if (user === 'admin' && pass === '1234') {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('intro').style.display = 'flex';
+    error.innerText = '';
+  } else {
+    error.innerText = 'Invalid username or password!';
+  }
+}
+
+let menuItems = [];
+let currentBill = [];
+let history = JSON.parse(localStorage.getItem('history')) || {Cash:[], Online:[]};
+
+function initMenu(){
+  let stored = JSON.parse(localStorage.getItem('menuItems'));
+  if(stored && stored.length===100){ menuItems=stored; return; }
+  const indianDishes=["Paneer
